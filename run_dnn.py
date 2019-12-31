@@ -145,7 +145,17 @@ def evaluate(model, dataloader, queue, criterion, device):
     return total_loss / total_num, total_correct / total_sent_num
 
 
-def split_dataset(config, train_wav_paths, valid_wav_paths, test_wav_paths):
+def split_dataset(config, train_wav_paths, valid_wav_paths, test_wav_paths, kor_wav_paths):
+    random.shuffle(kor_wav_paths)
+    train_num, valid_num, test_num = len(train_wav_paths), len(valid_wav_paths), len(test_wav_paths)
+    train_wav_paths = np.concatenate((train_wav_paths, kor_wav_paths[:train_num]))
+    valid_wav_paths = np.concatenate((valid_wav_paths, kor_wav_paths[train_num:train_num+valid_num]))
+    test_wav_paths = np.concatenate((test_wav_paths, kor_wav_paths[train_num+valid_num:train_num+valid_num+test_num]))
+
+    random.shuffle(train_wav_paths)
+    random.shuffle(valid_wav_paths)
+    random.shuffle(test_wav_paths)
+
     train_batch_num = math.ceil(len(train_wav_paths) / config.batch_size)
 
     batch_num_per_train_loader = math.ceil(train_batch_num / config.workers)
@@ -213,12 +223,17 @@ def main():
     valid_wav_paths = np.loadtxt("dataset/TEST_developmentset_list.csv", delimiter=',', dtype=np.unicode)
     test_wav_paths = np.loadtxt("dataset/TEST_coreset_list.csv", delimiter=',', dtype=np.unicode)
 
+    train_wav_paths = list(map(lambda x: "dataset/TIMIT/{}.wav".format(x), train_wav_paths))
+    valid_wav_paths = list(map(lambda x: "dataset/TIMIT/{}.wav".format(x), valid_wav_paths))
+    test_wav_paths = list(map(lambda x: "dataset/TIMIT/{}.wav".format(x), test_wav_paths))
+
     best_acc = 0
     begin_epoch = 0
 
     loss_acc = [[], [], [], []]
 
-    train_batch_num, train_dataset_list, valid_dataset, test_dataset = split_dataset(args, train_wav_paths, valid_wav_paths, test_wav_paths)
+    train_batch_num, train_dataset_list, valid_dataset, test_dataset = \
+        split_dataset(args, train_wav_paths, valid_wav_paths, test_wav_paths, kor_db_list)
 
     logger.info('start')
 
