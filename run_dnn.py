@@ -223,9 +223,9 @@ def main():
     valid_wav_paths = np.loadtxt("dataset/TEST_developmentset_list.csv", delimiter=',', dtype=np.unicode)
     test_wav_paths = np.loadtxt("dataset/TEST_coreset_list.csv", delimiter=',', dtype=np.unicode)
 
-    train_wav_paths = list(map(lambda x: "dataset/TIMIT/{}.wav".format(x), train_wav_paths))
-    valid_wav_paths = list(map(lambda x: "dataset/TIMIT/{}.wav".format(x), valid_wav_paths))
-    test_wav_paths = list(map(lambda x: "dataset/TIMIT/{}.wav".format(x), test_wav_paths))
+    train_wav_paths = list(map(lambda x: "dataset/TIMIT/{}.WAV".format(x), train_wav_paths))
+    valid_wav_paths = list(map(lambda x: "dataset/TIMIT/{}.WAV".format(x), valid_wav_paths))
+    test_wav_paths = list(map(lambda x: "dataset/TIMIT/{}.WAV".format(x), test_wav_paths))
 
     best_acc = 0
     begin_epoch = 0

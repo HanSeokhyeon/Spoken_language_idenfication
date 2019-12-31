@@ -23,6 +23,7 @@ import torch
 import random
 import threading
 import logging
+import numpy as np
 from torch.utils.data import Dataset
 from torchaudio.transforms import MFCC
 
@@ -38,7 +39,10 @@ SAMPLE_RATE = 16000
 
 
 def get_spectrogram_feature(filepath):
-    (fate, width, sig) = wavio.readwav(filepath)
+    if filepath.split('/')[1] == 'TIMIT':
+        sig = np.fromfile(filepath, dtype=np.int16)[512:].reshape((-1, 1))
+    else:
+        (fate, width, sig) = wavio.readwav(filepath)
     sig = sig.ravel()
     feat = MFCC(sig)
     # stft = torch.stft(torch.FloatTensor(sig),
@@ -59,9 +63,9 @@ def get_spectrogram_feature(filepath):
 
 
 def get_label(filepath):
-    label = filepath[-6]
+    label = filepath.split('/')[1]
 
-    label2num = {"W": 0, "L": 1, "E": 2, "A": 3, "F": 4, "T": 5, "N": 6}
+    label2num = {"TIMIT": 0, "train": 1}
 
     return label2num[label]
 
