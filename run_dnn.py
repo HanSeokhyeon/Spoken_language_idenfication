@@ -26,7 +26,7 @@ import torch.nn as nn
 import torch.optim as optim
 from loader import *
 from models import DNN
-from util import download_timit
+from util import download_data, search
 from result import *
 
 DATASET_PATH = './dataset'
@@ -204,11 +204,14 @@ def main():
     if args.mode != 'train':
         return
 
-    download_timit()
+    download_data()
 
-    train_wav_paths = np.loadtxt("dataset/TRAIN_list.csv", delimiter=',')
-    valid_wav_paths = np.loadtxt("dataset/TEST_developmentset_list.csv", delimiter=',')
-    test_wav_paths = np.loadtxt("dataset/TEST_coreset_list.csv", delimiter=',')
+    kor_db_list = []
+    search('dataset/train/train_data', kor_db_list)
+
+    train_wav_paths = np.loadtxt("dataset/TRAIN_list.csv", delimiter=',', dtype=np.unicode)
+    valid_wav_paths = np.loadtxt("dataset/TEST_developmentset_list.csv", delimiter=',', dtype=np.unicode)
+    test_wav_paths = np.loadtxt("dataset/TEST_coreset_list.csv", delimiter=',', dtype=np.unicode)
 
     best_acc = 0
     begin_epoch = 0

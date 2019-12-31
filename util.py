@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import shutil, requests, zipfile, io
+import tarfile
 from logger import *
 
 
@@ -15,11 +16,42 @@ def download_data():
         shutil.move('dataset/data/lisa/data/timit/raw/TIMIT', 'dataset')
         shutil.rmtree('dataset/data')
 
+    def download_file_from_google_drive(id, destination):
+        def get_confirm_token(response):
+            for key, value in response.cookies.items():
+                if key.startswith('download_warning'):
+                    return value
+
+            return None
+
+        def save_response_content(response, destination):
+            CHUNK_SIZE = 32768
+
+            with open(destination, "wb") as f:
+                for chunk in response.iter_content(CHUNK_SIZE):
+                    if chunk:  # filter out keep-alive new chunks
+                        f.write(chunk)
+
+        URL = "https://docs.google.com/uc?export=download"
+
+        session = requests.Session()
+
+        response = session.get(URL, params={'id': id}, stream=True)
+        token = get_confirm_token(response)
+
+        if token:
+            params = {'id': id, 'confirm': token}
+            response = session.get(URL, params=params, stream=True)
+
+        save_response_content(response, destination)
+
     if os.path.isdir('dataset/train'):
         logger.info("Korean DB already exists")
     else:
         logger.info("Korean DB downloading")
-        r = requests.get('')
+        download_file_from_google_drive('1UOspFSTJ2w0wsENIeD6Ilcy5dd4NTsDV', 'dataset/train.tar')
+        tar = tarfile.open('dataset/train.tar')
+        tar.extractall('dataset')
 
 
 def search(dirname, input_filename):
@@ -31,8 +63,8 @@ def search(dirname, input_filename):
                 search(full_filename, input_filename)
             else:
                 ext = os.path.splitext(full_filename)[-1]
-                if ext == '.PHN':
-                    input_filename.append(full_filename[:-4])
+                if ext == '.wav':
+                    input_filename.append(full_filename)
                     # print(full_filename)
     except PermissionError:
         pass
