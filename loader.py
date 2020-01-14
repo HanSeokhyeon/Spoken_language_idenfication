@@ -46,26 +46,14 @@ def get_spectrogram_feature(filepath):
         (fate, width, sig) = wavio.readwav(filepath)
 
     sig = sig.ravel().astype(np.float) / 32767
-    mfcc = librosa.feature.mfcc(sig, n_mfcc=40)
+    sig = librosa.resample(sig, 16000, 8000)
+    mfcc = librosa.feature.mfcc(sig,
+                                sr=8000,
+                                n_fft=512,
+                                hop_length=256,
+                                n_mfcc=40,
+                                center=False)
     mfcc = np.mean(mfcc, axis=1)
-
-    # sig = sig.reshape(1, -1)
-    # feat = MFCC()(torch.FloatTensor(sig))
-    # feat = feat.view(40, -1)
-    # feat = torch.mean(feat, dim=1)
-    # stft = torch.stft(torch.FloatTensor(sig2),
-    #                   N_FFT,
-    #                   hop_length=int(0.01*SAMPLE_RATE),
-    #                   win_length=int(0.03*SAMPLE_RATE),
-    #                   window=torch.hamming_window(int(0.03*SAMPLE_RATE)),
-    #                   center=False,
-    #                   normalized=False,
-    #                   onesided=True)
-    #
-    # stft = (stft[:, :, 0].pow(2) + stft[:, :, 1].pow(2)).pow(0.5)
-    # amag = stft.numpy()
-    # feat2 = torch.FloatTensor(amag)
-    # feat2 = torch.FloatTensor(feat2).transpose(0, 1)
 
     return torch.FloatTensor(mfcc)
 

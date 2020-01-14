@@ -184,9 +184,9 @@ def split_dataset(config, train_wav_paths, valid_wav_paths, test_wav_paths, kor_
 def main():
     parser = argparse.ArgumentParser(description='Speech Emotion Recognition')
     parser.add_argument('--dropout', type=float, default=0.2, help='dropout rate in training (default: 0.2')
-    parser.add_argument('--batch_size', type=int, default=8, help='batch size in training (default: 32')
+    parser.add_argument('--batch_size', type=int, default=64, help='batch size in training (default: 32')
     parser.add_argument('--workers', type=int, default=4, help='number of workers in dataset loader (default: 4)')
-    parser.add_argument('--max_epochs', type=int, default=30, help='number of max epochs in training (default: 10)')
+    parser.add_argument('--max_epochs', type=int, default=5, help='number of max epochs in training (default: 10)')
     parser.add_argument('--lr', type=float, default=1e-04, help='learning rate (default: 0.0001)')
     parser.add_argument('--no_cuda', action='store_true', default=False, help='disables CUDA training')
     parser.add_argument('--seed', type=int, default=1, help='random seed (default: 1)')
