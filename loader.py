@@ -24,6 +24,7 @@ import random
 import threading
 import logging
 import numpy as np
+import librosa
 from torch.utils.data import Dataset
 from torchaudio.transforms import MFCC
 
@@ -43,11 +44,15 @@ def get_spectrogram_feature(filepath):
         sig = np.fromfile(filepath, dtype=np.int16)[512:].reshape((-1, 1))
     else:
         (fate, width, sig) = wavio.readwav(filepath)
-    # sig2 = sig.ravel()
-    sig = sig.reshape(1, -1)
-    feat = MFCC()(torch.FloatTensor(sig))
-    feat = feat.view(40, -1)
-    feat = torch.mean(feat, dim=1)
+
+    sig2 = sig.ravel().astype(np.float) / 32767
+    mfcc = librosa.feature.mfcc(sig2, n_mfcc=40)
+    mfcc = np.mean(mfcc, axis=1)
+
+    # sig = sig.reshape(1, -1)
+    # feat = MFCC()(torch.FloatTensor(sig))
+    # feat = feat.view(40, -1)
+    # feat = torch.mean(feat, dim=1)
     # stft = torch.stft(torch.FloatTensor(sig2),
     #                   N_FFT,
     #                   hop_length=int(0.01*SAMPLE_RATE),
@@ -62,7 +67,7 @@ def get_spectrogram_feature(filepath):
     # feat2 = torch.FloatTensor(amag)
     # feat2 = torch.FloatTensor(feat2).transpose(0, 1)
 
-    return feat
+    return torch.FloatTensor(mfcc)
 
 
 def get_label(filepath):
