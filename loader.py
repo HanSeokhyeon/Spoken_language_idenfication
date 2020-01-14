@@ -43,9 +43,11 @@ def get_spectrogram_feature(filepath):
         sig = np.fromfile(filepath, dtype=np.int16)[512:].reshape((-1, 1))
     else:
         (fate, width, sig) = wavio.readwav(filepath)
-    sig = sig.ravel()
-    feat = MFCC(sig)
-    # stft = torch.stft(torch.FloatTensor(sig),
+    # sig2 = sig.ravel()
+    sig = sig.reshape(1, -1)
+    feat = MFCC()(torch.FloatTensor(sig))
+    feat = feat.view(40, -1).transpose(0, 1)
+    # stft = torch.stft(torch.FloatTensor(sig2),
     #                   N_FFT,
     #                   hop_length=int(0.01*SAMPLE_RATE),
     #                   win_length=int(0.03*SAMPLE_RATE),
@@ -56,8 +58,8 @@ def get_spectrogram_feature(filepath):
     #
     # stft = (stft[:, :, 0].pow(2) + stft[:, :, 1].pow(2)).pow(0.5)
     # amag = stft.numpy()
-    # feat = torch.FloatTensor(amag)
-    # feat = torch.FloatTensor(feat).transpose(0, 1)
+    # feat2 = torch.FloatTensor(amag)
+    # feat2 = torch.FloatTensor(feat2).transpose(0, 1)
 
     return feat
 

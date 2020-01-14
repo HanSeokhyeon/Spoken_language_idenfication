@@ -67,8 +67,8 @@ def train(model, total_batch_size, queue, criterion, optimizer, device, train_be
         feats = feats.to(device)
         label = label.to(device)
 
-        model.module.flatten_parameters()
-        logit = model(feats, feat_lengths).to(device)
+        # model.module.flatten_parameters()
+        logit = model(feats).to(device)
 
         y_hat = logit.max(-1)[1]
 
