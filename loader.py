@@ -46,7 +46,8 @@ def get_spectrogram_feature(filepath):
     # sig2 = sig.ravel()
     sig = sig.reshape(1, -1)
     feat = MFCC()(torch.FloatTensor(sig))
-    feat = feat.view(40, -1).transpose(0, 1)
+    feat = feat.view(40, -1)
+    feat = torch.mean(feat, dim=1)
     # stft = torch.stft(torch.FloatTensor(sig2),
     #                   N_FFT,
     #                   hop_length=int(0.01*SAMPLE_RATE),
@@ -89,19 +90,10 @@ class BaseDataset(Dataset):
 
 
 def _collate_fn(batch):
-    def seq_length_(p):
-        return len(p[0])
-
-    seq_lengths = [len(s[0]) for s in batch]
-
-    max_seq_smaple = max(batch, key=seq_length_)[0]
-
-    max_seq_size = max_seq_smaple.size(0)
-
-    feat_size = max_seq_smaple.size(1)
+    feat_size = batch[0][0].size(0)
     batch_size = len(batch)
 
-    seqs = torch.zeros(batch_size, max_seq_size, feat_size)
+    seqs = torch.zeros(batch_size, feat_size)
 
     targets = torch.zeros(batch_size).to(torch.long)
 
@@ -109,12 +101,11 @@ def _collate_fn(batch):
         sample = batch[x]
         tensor = sample[0]
         target = sample[1]
-        seq_length = tensor.size(0)
-        seqs[x].narrow(0, 0, seq_length).copy_(tensor)
+        seqs[x].narrow(0, 0, feat_size).copy_(tensor)
         target = torch.LongTensor([target])
         targets.narrow(0, x, 1).copy_(target)
 
-    return seqs, targets, seq_lengths
+    return seqs, targets
 
 
 class BaseDataLoader(threading.Thread):

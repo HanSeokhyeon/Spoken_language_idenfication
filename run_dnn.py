@@ -49,7 +49,7 @@ def train(model, total_batch_size, queue, criterion, optimizer, device, train_be
         if queue.empty():
             logger.debug('queue is empty')
 
-        feats, label, feat_lengths = queue.get()
+        feats, label = queue.get()
 
         if feats.shape[0] == 0:
             # empty feats means closing one loader
@@ -67,7 +67,6 @@ def train(model, total_batch_size, queue, criterion, optimizer, device, train_be
         feats = feats.to(device)
         label = label.to(device)
 
-        # model.module.flatten_parameters()
         logit = model(feats).to(device)
 
         y_hat = logit.max(-1)[1]
@@ -119,15 +118,14 @@ def evaluate(model, dataloader, queue, criterion, device):
 
     with torch.no_grad():
         while True:
-            feats, label, feat_lengths = queue.get()
+            feats, label = queue.get()
             if feats.shape[0] == 0:
                 break
 
             feats = feats.to(device)
             label = label.to(device)
 
-            model.module.flatten_parameters()
-            logit = model(feats, feat_lengths).to(device)
+            logit = model(feats).to(device)
 
             y_hat = logit.max(-1)[1]
 
