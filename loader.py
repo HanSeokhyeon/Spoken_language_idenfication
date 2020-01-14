@@ -22,18 +22,10 @@ import wavio
 import torch
 import random
 import threading
-import logging
 import numpy as np
 import librosa
 from torch.utils.data import Dataset
-from torchaudio.transforms import MFCC
-
-logger = logging.getLogger('root')
-FORMAT = "[%(asctime)s %(filename)s:%(lineno)s - %(funcName)s()] %(message)s"
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, format=FORMAT)
-logger.setLevel(logging.INFO)
-logging.getLogger('matplotlib.font_manager').disabled = True
-logging.getLogger('matplotlib').disabled = True
+from logger import *
 
 N_FFT = 512
 SAMPLE_RATE = 16000
@@ -49,8 +41,8 @@ def get_spectrogram_feature(filepath):
     sig = librosa.resample(sig, 16000, 8000)
     mfcc = librosa.feature.mfcc(sig,
                                 sr=8000,
-                                n_fft=512,
-                                hop_length=256,
+                                # n_fft=512,
+                                # hop_length=256,
                                 n_mfcc=40,
                                 center=False)
     mfcc = np.mean(mfcc, axis=1)
