@@ -45,8 +45,8 @@ def get_spectrogram_feature(filepath):
     else:
         (fate, width, sig) = wavio.readwav(filepath)
 
-    sig2 = sig.ravel().astype(np.float) / 32767
-    mfcc = librosa.feature.mfcc(sig2, n_mfcc=40)
+    sig = sig.ravel().astype(np.float) / 32767
+    mfcc = librosa.feature.mfcc(sig, n_mfcc=40)
     mfcc = np.mean(mfcc, axis=1)
 
     # sig = sig.reshape(1, -1)
@@ -128,10 +128,9 @@ class BaseDataLoader(threading.Thread):
         return math.ceil(self.dataset_count / self.batch_size)
 
     def create_empty_batch(self):
-        seqs = torch.zeros(0, 0, 0)
+        seqs = torch.zeros(0, 0)
         target = torch.zeros(0).to(torch.long)
-        seqs_lengths = list()
-        return seqs, target, seqs_lengths
+        return seqs, target
 
     def run(self):
         logger.debug('loader %d start' % (self.thread_id))
