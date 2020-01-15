@@ -107,7 +107,7 @@ def train(model, total_batch_size, queue, criterion, optimizer, device, train_be
 train.cumulative_batch_count = 0
 
 
-def evaluate(model, dataloader, queue, criterion, device):
+def evaluate(model, dataloader, queue, criterion, device, confusion_matrix=None):
     logger.info('evaluate() start')
     total_loss = 0
     total_num = 0
@@ -129,6 +129,9 @@ def evaluate(model, dataloader, queue, criterion, device):
 
             y_hat = logit.max(-1)[1]
 
+            if confusion_matrix != None:
+                update_confusion_matrix(confusion_matrix, label, y_hat)
+
             correct = torch.eq(y_hat, label)
             batch_correct = torch.nonzero(correct).size(0)
             total_correct += batch_correct
@@ -141,6 +144,11 @@ def evaluate(model, dataloader, queue, criterion, device):
 
     logger.info('evaluate() completed')
     return total_loss / total_num, total_correct / total_sent_num
+
+
+def update_confusion_matrix(cm, y, y_):
+    for y1, y2 in zip(y, y_):
+        cm[y2][y1] += 1
 
 
 def split_dataset(config, train_wav_paths, valid_wav_paths, test_wav_paths, kor_wav_paths):
@@ -184,10 +192,11 @@ def split_dataset(config, train_wav_paths, valid_wav_paths, test_wav_paths, kor_
 def main():
     parser = argparse.ArgumentParser(description='Speech Emotion Recognition')
     parser.add_argument('--dropout', type=float, default=0.2, help='dropout rate in training (default: 0.2')
-    parser.add_argument('--batch_size', type=int, default=64, help='batch size in training (default: 32')
+    parser.add_argument('--batch_size', type=int, default=256, help='batch size in training (default: 32')
     parser.add_argument('--workers', type=int, default=4, help='number of workers in dataset loader (default: 4)')
-    parser.add_argument('--max_epochs', type=int, default=5, help='number of max epochs in training (default: 10)')
+    parser.add_argument('--max_epochs', type=int, default=1, help='number of max epochs in training (default: 10)')
     parser.add_argument('--lr', type=float, default=1e-04, help='learning rate (default: 0.0001)')
+    parser.add_argument('--n_class', type=int, default=2, help='number of class')
     parser.add_argument('--no_cuda', action='store_true', default=False, help='disables CUDA training')
     parser.add_argument('--seed', type=int, default=1, help='random seed (default: 1)')
     parser.add_argument('--save_name', type=str, default='model', help='the name of model')
@@ -279,7 +288,8 @@ def main():
     test_loader = BaseDataLoader(test_dataset, test_queue, args.batch_size, 0)
     test_loader.start()
 
-    test_loss, test_acc = evaluate(model, test_loader, test_queue, criterion, device)
+    confusion_matrix = torch.zeros((args.n_class, args.n_class))
+    test_loss, test_acc = evaluate(model, test_loader, test_queue, criterion, device, confusion_matrix)
     logger.info('Epoch %d (Test) Loss %0.4f Acc %0.4f' % (save_epoch, test_loss, test_acc))
 
     test_loader.join()
