@@ -5,6 +5,9 @@ Simple implementation of neural networks for spoken language identification
 ## Dataset
 * TIMIT
 * 한국어 전화망 DB [NAVER Corp]
+* number of train : 3696
+* number of validation : 400
+* number of test : 192
 
 ## Requirement
 
@@ -18,9 +21,9 @@ Simple implementation of neural networks for spoken language identification
 #### 1. DNN
 |   |ENG|KOR|Precision|
 |:---:|:---:|:---:|:---:|
-|ENG|   |   |   |
-|KOR|   |   |   |
-|Recall|    |   |   |
+|ENG|191|2|98.96|
+|KOR|1|190|99.48|
+|Recall|99.48|98.96|99.22|
 
 #### 2. CNN
 |   |ENG|KOR|Precision|
@@ -52,6 +55,9 @@ Simple implementation of neural networks for spoken language identification
 ## Dataset
 * TIMIT
 * 한국어 전화망 DB [NAVER Corp]
+* train data : 3696개
+* validation data : 400개
+* test data : 192개
 
 ## Requirement
 
@@ -65,9 +71,9 @@ Simple implementation of neural networks for spoken language identification
 #### 1. DNN
 |   |ENG|KOR|Precision|
 |:---:|:---:|:---:|:---:|
-|ENG|   |   |   |
-|KOR|   |   |   |
-|Recall|    |   |   |
+|ENG|191|2|98.96|
+|KOR|1|190|99.48|
+|Recall|99.48|98.96|99.22|
 
 #### 2. CNN
 |   |ENG|KOR|Precision|
