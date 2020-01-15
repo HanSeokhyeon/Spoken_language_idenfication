@@ -20,7 +20,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from datetime import datetime
 
-def save_data(loss_acc, test_loss, test_acc):
+
+def save_data(loss_acc, test_loss, test_acc, cm):
     data = np.array(loss_acc)
     test = np.zeros((2, data.shape[1]))
     data = np.concatenate((data, test))
@@ -29,8 +30,10 @@ def save_data(loss_acc, test_loss, test_acc):
 
     now = datetime.now()
     filename = "./result/{}.csv".format(str(now)[:-7])
+    cm_name = "./result/{}_cm.csv".format(str(now)[:-7])
 
     np.savetxt(filename, data, delimiter=',', newline='\n')
+    np.savetxt(cm_name, cm, delimiter=',', newline='\n')
 
     return
 

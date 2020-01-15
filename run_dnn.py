@@ -24,6 +24,7 @@ import random
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import numpy as np
 from loader import *
 from models import DNN
 from util import download_data, search
@@ -129,8 +130,8 @@ def evaluate(model, dataloader, queue, criterion, device, confusion_matrix=None)
 
             y_hat = logit.max(-1)[1]
 
-            if confusion_matrix != None:
-                update_confusion_matrix(confusion_matrix, label, y_hat)
+            if type(confusion_matrix) is torch.Tensor:
+                update_confusion_matrix(confusion_matrix, label.cpu().numpy(), y_hat.cpu().numpy())
 
             correct = torch.eq(y_hat, label)
             batch_correct = torch.nonzero(correct).size(0)
@@ -192,9 +193,9 @@ def split_dataset(config, train_wav_paths, valid_wav_paths, test_wav_paths, kor_
 def main():
     parser = argparse.ArgumentParser(description='Speech Emotion Recognition')
     parser.add_argument('--dropout', type=float, default=0.2, help='dropout rate in training (default: 0.2')
-    parser.add_argument('--batch_size', type=int, default=256, help='batch size in training (default: 32')
+    parser.add_argument('--batch_size', type=int, default=64, help='batch size in training (default: 32')
     parser.add_argument('--workers', type=int, default=4, help='number of workers in dataset loader (default: 4)')
-    parser.add_argument('--max_epochs', type=int, default=1, help='number of max epochs in training (default: 10)')
+    parser.add_argument('--max_epochs', type=int, default=5, help='number of max epochs in training (default: 10)')
     parser.add_argument('--lr', type=float, default=1e-04, help='learning rate (default: 0.0001)')
     parser.add_argument('--n_class', type=int, default=2, help='number of class')
     parser.add_argument('--no_cuda', action='store_true', default=False, help='disables CUDA training')
@@ -294,7 +295,7 @@ def main():
 
     test_loader.join()
 
-    save_data(loss_acc, test_loss, test_acc)
+    save_data(loss_acc, test_loss, test_acc, confusion_matrix.to('cpu').numpy())
     plot_data(loss_acc, test_loss, test_acc)
 
     return 0
