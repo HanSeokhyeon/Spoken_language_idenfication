@@ -26,7 +26,9 @@ import torch.nn as nn
 import torch.optim as optim
 import numpy as np
 from loader import *
-from models import DNN
+from models import CRNN
+from models import CNN
+from models import RNN
 from util import download_data, search
 from result import *
 
@@ -50,7 +52,7 @@ def train(model, total_batch_size, queue, criterion, optimizer, device, train_be
         if queue.empty():
             logger.debug('queue is empty')
 
-        feats, label = queue.get()
+        feats, label, feat_lengths = queue.get()
 
         if feats.shape[0] == 0:
             # empty feats means closing one loader
@@ -68,7 +70,7 @@ def train(model, total_batch_size, queue, criterion, optimizer, device, train_be
         feats = feats.to(device)
         label = label.to(device)
 
-        logit = model(feats).to(device)
+        logit = model(feats, feat_lengths).to(device)
 
         y_hat = logit.max(-1)[1]
 
@@ -119,14 +121,14 @@ def evaluate(model, dataloader, queue, criterion, device, confusion_matrix=None)
 
     with torch.no_grad():
         while True:
-            feats, label = queue.get()
+            feats, label, feat_lengths = queue.get()
             if feats.shape[0] == 0:
                 break
 
             feats = feats.to(device)
             label = label.to(device)
 
-            logit = model(feats).to(device)
+            logit = model(feats, feat_lengths).to(device)
 
             y_hat = logit.max(-1)[1]
 
@@ -192,17 +194,21 @@ def split_dataset(config, train_wav_paths, valid_wav_paths, test_wav_paths, kor_
 
 def main():
     parser = argparse.ArgumentParser(description='Spoken Language Idenfication')
+    parser.add_argument('--hidden_size', type=int, default=512, help='hidden size of model (default: 256)')
+    parser.add_argument('--layer_size', type=int, default=3, help='number of layers of model (default: 3)')
+    parser.add_argument('--n_class', type=int, default=2, help='number of classes of data (default: 7)')
     parser.add_argument('--dropout', type=float, default=0.2, help='dropout rate in training (default: 0.2')
-    parser.add_argument('--batch_size', type=int, default=64, help='batch size in training (default: 32')
+    parser.add_argument('--bidirectional', default=True, action='store_true',
+                        help='use bidirectional RNN (default: False')
+    parser.add_argument('--batch_size', type=int, default=2, help='batch size in training (default: 32')
     parser.add_argument('--workers', type=int, default=4, help='number of workers in dataset loader (default: 4)')
     parser.add_argument('--max_epochs', type=int, default=5, help='number of max epochs in training (default: 10)')
     parser.add_argument('--lr', type=float, default=1e-04, help='learning rate (default: 0.0001)')
-    parser.add_argument('--n_class', type=int, default=2, help='number of class')
     parser.add_argument('--no_cuda', action='store_true', default=False, help='disables CUDA training')
     parser.add_argument('--seed', type=int, default=1, help='random seed (default: 1)')
-    parser.add_argument('--nn_type', type=str, default='crnn', help='type of neural networks')
     parser.add_argument('--save_name', type=str, default='model', help='the name of model')
     parser.add_argument('--mode', type=str, default='train')
+    parser.add_argument('--nn_type', type=str, default='crnn', help='type of neural networks')
 
     args = parser.parse_args()
 
@@ -213,7 +219,15 @@ def main():
     args.cuda = not args.no_cuda and torch.cuda.is_available()
     device = torch.device('cuda' if args.cuda else 'cpu')
 
-    model = DNN.DNN()
+    feature_size = N_FFT / 2 + 1
+
+    cnn = CNN.CNN(feature_size)
+    rnn = RNN.RNN(cnn.feature_size, args.hidden_size, args.n_class,
+                  input_dropout_p=args.dropout, dropout_p=args.dropout,
+                  n_layers=args.layer_size, bidirectional=args.bidirectional, rnn_cell='gru', variable_lengths=False)
+
+    model = CRNN.CRNN(cnn, rnn)
+    model.flatten_parameters()
 
     model = nn.DataParallel(model).to(device)
 
