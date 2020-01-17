@@ -25,21 +25,14 @@ Simple implementation of neural networks for spoken language identification
 |KOR|1|190|99.48|
 |Recall|99.48|98.96|99.22|
 
-#### 2. CNN
+#### 2. CRNN
 |   |ENG|KOR|Precision|
 |:---:|:---:|:---:|:---:|
 |ENG|   |   |   |
 |KOR|   |   |   |
 |Recall|    |   |   |
 
-#### 3. CRNN
-|   |ENG|KOR|Precision|
-|:---:|:---:|:---:|:---:|
-|ENG|   |   |   |
-|KOR|   |   |   |
-|Recall|    |   |   |
-
-#### 4. Total
+#### 3. Total
 |   |Accuracy|Operation|
 |:---:|:---:|:---:|
 |DNN|   |   |
@@ -75,21 +68,14 @@ Simple implementation of neural networks for spoken language identification
 |KOR|1|190|99.48|
 |Recall|99.48|98.96|99.22|
 
-#### 2. CNN
+#### 2. CRNN
 |   |ENG|KOR|Precision|
 |:---:|:---:|:---:|:---:|
 |ENG|   |   |   |
 |KOR|   |   |   |
 |Recall|    |   |   |
 
-#### 3. CRNN
-|   |ENG|KOR|Precision|
-|:---:|:---:|:---:|:---:|
-|ENG|   |   |   |
-|KOR|   |   |   |
-|Recall|    |   |   |
-
-#### 4. Total
+#### 3. Total
 |   |Accuracy|Operation|
 |:---:|:---:|:---:|
 |DNN|   |   |
