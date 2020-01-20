@@ -236,7 +236,7 @@ def main():
     valid_wav_paths = list(map(lambda x: "dataset/TIMIT/{}.WAV".format(x), valid_wav_paths))
     test_wav_paths = list(map(lambda x: "dataset/TIMIT/{}.WAV".format(x), test_wav_paths))
 
-    best_acc = 0
+    min_loss = 100000
     begin_epoch = 0
 
     loss_acc = [[], [], [], []]
@@ -276,10 +276,10 @@ def main():
         loss_acc[2].append(eval_loss)
         loss_acc[3].append(eval_acc)
 
-        best_model = (eval_acc > best_acc)
+        best_model = (eval_loss < min_loss)
 
         if best_model:
-            best_acc = eval_acc
+            min_loss = eval_loss
             torch.save(model.state_dict(), './save_model/best_model.pt')
             save_epoch = epoch
 
