@@ -5,14 +5,14 @@ Simple implementation of neural networks for spoken language identification
 ## Dataset
 * TIMIT
 * 한국어 전화망 DB [NAVER Corp]
-* number of train : 3696
-* number of validation : 400
-* number of test : 192
+* number of train : 3696 file * 2 language
+* number of validation : 400 file * 2 language
+* number of test : 192 file * 2 language
 
 ## Requirement
 
 * python 3.6.8
-* tensorflow==1.13.1
+* torch==1.2.0
 * numpy
 * matplotlib
 * librosa
@@ -47,14 +47,14 @@ Simple implementation of neural networks for spoken language identification
 ## Dataset
 * TIMIT
 * 한국어 전화망 DB [NAVER Corp]
-* train data : 3696개
-* validation data : 400개
-* test data : 192개
+* train data : 3696 파일 * 2 언어
+* validation data : 400 파일 * 2 언어
+* test data : 192 파일 * 2 언
 
 ## Requirement
 
 * python 3.6.8
-* tensorflow==1.13.1
+* torch==1.2.0
 * numpy
 * matplotlib
 * librosa
